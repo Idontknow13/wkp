@@ -12,7 +12,7 @@ sent by the Wikimedia API using these options:
 */
 
 use crate::errors::WikiError;
-use reqwest::{blocking::get, Error as ReqwestErr};
+use reqwest::blocking::get;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -37,16 +37,12 @@ pub struct Page {
 impl WikiResponse {
     /// Fetches a response from Wikimedia given a specific title.
     pub fn get(url: &str, titles: Vec<Title>) -> Result<Self, WikiError<'static>> {
-        let title_str = titles.chain("%7C");
-        let url = format!("{url}&titles={}", title_str);
+        let title_strs = titles.to_str_vec();
+        let url = format!("{url}&titles={}", title_strs.join("%7C"));
 
         match get(url)?.json::<WikiResponse>() {
             Ok(resp) => Ok(resp),
-            Err(err) => Err(WikiError::RequestError {
-                err,
-                ident: "titles",
-                args: titles.to_str_vec(),
-            }),
+            Err(err) => Err(WikiError::new(err, "title", title_strs)),
         }
     }
 
@@ -67,9 +63,6 @@ pub struct Title {
 trait ToStrVec {
     /// Turns `self` into a vector of strings.
     fn to_str_vec(&self) -> Vec<String>;
-
-    /// Joins `self` into a single string.
-    fn chain(&self, _: &str) -> String;
 }
 
 impl From<&str> for Title {
@@ -115,9 +108,5 @@ impl ToStrVec for Vec<Title> {
                 String::from(title)
             })
             .collect()
-    }
-
-    fn chain(&self, sep: &str) -> String {
-        self.to_str_vec().join(sep)
     }
 }
