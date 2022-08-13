@@ -1,5 +1,5 @@
 /*!
-This module contains the custom `WikiError` and
+This module contains the custom `WikiError` type.
 */
 
 use reqwest::Error as HTTPError;
