@@ -28,15 +28,15 @@ struct Query {
 #[derive(Clone, Debug, Deserialize)]
 pub struct Page {
     #[serde(rename = "pageid")]
-    page_id: usize,
-    title: String,
-    extract: Option<String>,
-    missing: Option<bool>,
+    pub page_id: Option<usize>,
+    pub title: String,
+    pub extract: Option<String>,
+    pub missing: Option<bool>,
 }
 
 impl WikiResponse {
     /// Fetches a response from Wikimedia given a specific title.
-    pub fn get(url: &str, titles: Vec<Title>) -> Result<Self, WikiError<'static>> {
+    pub fn get(url: &str, titles: Vec<Title>) -> Result<Self, WikiError<'_>> {
         let title_strs = titles.to_str_vec();
         let url = format!("{url}&titles={}", title_strs.join("%7C"));
 
@@ -52,8 +52,7 @@ impl WikiResponse {
     }
 }
 
-/// A string wrapper which allows normalization and title chaining
-/// for requests made with the WikiMedia API.
+/// A string wrapper which allows normalization for requests made with the WikiMedia API. 
 #[derive(Clone)]
 pub struct Title {
     normalized: bool,
@@ -90,7 +89,7 @@ impl Title {
     fn normalize(&self) -> Self {
         Self {
             normalized: true,
-            title: self.title.replace(" ", "_"),
+            title: self.title.replace(' ', "_"),
         }
     }
 }
