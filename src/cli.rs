@@ -1,20 +1,32 @@
 use color_eyre::eyre::Result as ColoredResult;
 use colored::Colorize;
-use wikipedia_cli::{schema::{Page, WikiResponse}, urlbuilder::{WikiURL, ToURL}};
+use wikipedia_cli::{
+    schema::{Page, WikiResponse},
+    urlbuilder::{ToURL, WikiURL},
+};
+
+// TODO: Add the CLI
+
+enum PrintOptions {
+    FirstParagraphOnly,
+    All,
+}
 
 fn main() -> ColoredResult<()> {
     color_eyre::install()?;
 
-    let url = WikiURL::default().to_url();
+    let url = WikiURL::default();
     let titles = vec!["Sex Pistols"].into_iter().map(|s| s.into()).collect();
 
-    let queries = WikiResponse::get(url, titles)?.pages();
-    print_pages(queries);
+    let queries = WikiResponse::get(url.to_url(), titles)?.pages();
+    print_pages(queries, url.get_root_uri(), None);
 
     Ok(())
 }
 
-fn print_pages(pages: Vec<Page>) {
+fn print_pages(pages: Vec<Page>, uri: String, options: Option<PrintOptions>) {
+    let options = options.unwrap_or_default();
+
     for page in pages {
         if page.missing.is_some() {
             println!(
@@ -33,10 +45,32 @@ fn print_pages(pages: Vec<Page>) {
             title = page.title.bold(),
             page_id = format!("(Page ID: {})", page.page_id.unwrap()).truecolor(128, 128, 128)
         );
-        let extract = page.extract.unwrap_or_default();
-        let extract = extract.split("\n").next().unwrap_or_default();
-        println!("  ~ {extract}\n")
 
-        // TODO: Add a `Read more...` at the very end
+        let extract = page
+            .extract
+            .as_ref()
+            .expect("the extract should exist if the page exists");
+        println!(
+            "  ~ {extract}\n",
+            extract = match &options {
+                &PrintOptions::All => extract,
+                &PrintOptions::FirstParagraphOnly => extract
+                    .split("\n")
+                    .next()
+                    .expect("first paragraph is guaranteed to exist"),
+            }
+        );
+
+        let page_url = page.get_wiki_url(&uri);
+        println!(
+            "{read_more}",
+            read_more = format!("Read more at {page_url}...").truecolor(128, 128, 128)
+        )
+    }
+}
+
+impl Default for PrintOptions {
+    fn default() -> Self {
+        Self::FirstParagraphOnly
     }
 }

@@ -109,3 +109,9 @@ impl ToStrVec for Vec<Title> {
             .collect()
     }
 }
+
+impl Page {
+    pub fn get_wiki_url(&self, root_uri: &str) -> String {
+        format!("{root_uri}/wiki/{}", self.title)
+    }
+}

@@ -33,7 +33,7 @@ pub enum FormatVersion {
 }
 
 pub trait ToURL {
-    fn to_url(self) -> String;
+    fn to_url(&self) -> String;
 }
 
 impl WikiURL {
@@ -49,6 +49,10 @@ impl WikiURL {
     pub fn with_props(mut self, q: QueryParams) -> Self {
         self.queries = q;
         self
+    }
+
+    pub fn get_root_uri(&self) -> String {
+        format!("https://{}", self.subdomain)
     }
 }
 
@@ -70,7 +74,7 @@ impl Default for WikiURL {
 }
 
 impl ToURL for WikiURL {
-    fn to_url(self) -> String {
+    fn to_url(&self) -> String {
         format!(
             "https://{domain}/w/api.php?{queries}",
             domain = self.subdomain,
@@ -80,7 +84,7 @@ impl ToURL for WikiURL {
 }
 
 impl ToURL for QueryParams {
-    fn to_url(self) -> String {
+    fn to_url(&self) -> String {
         let mut queryparams = vec![
             "action=query".to_string(),
             self.format.to_url(), // format={}
@@ -97,7 +101,7 @@ impl ToURL for QueryParams {
 }
 
 impl ToURL for Format {
-    fn to_url(self) -> String {
+    fn to_url(&self) -> String {
         format!(
             "format={}",
             match self {
@@ -112,7 +116,7 @@ impl ToURL for Format {
 }
 
 impl ToURL for FormatVersion {
-    fn to_url(self) -> String {
+    fn to_url(&self) -> String {
         let formatversion: u8 = match self {
             Self::BackwardsCompatible => 1,
             Self::Modern => 2,
@@ -123,7 +127,7 @@ impl ToURL for FormatVersion {
 }
 
 impl ToURL for Prop {
-    fn to_url(self) -> String {
+    fn to_url(&self) -> String {
         let props = match self {
             Self::Extracts {
                 intro_only,
@@ -131,10 +135,10 @@ impl ToURL for Prop {
             } => {
                 let mut propvec = vec!["prop=extracts"];
 
-                if intro_only {
+                if *intro_only {
                     propvec.push("exintro=1");
                 }
-                if plaintext {
+                if *plaintext {
                     propvec.push("explaintext=1");
                 }
 
