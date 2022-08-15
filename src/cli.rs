@@ -8,7 +8,7 @@ const BASE_URL: &str = "https://simple.wikipedia.org/w/api.php?action=query&form
 fn main() -> ColoredResult<()> {
     color_eyre::install()?;
 
-    let titles = vec!["Pornography"].into_iter().map(|s| s.into()).collect();
+    let titles = vec!["Sex Pistols"].into_iter().map(|s| s.into()).collect();
 
     let queries = WikiResponse::get(BASE_URL, titles)?.pages();
     print_pages(queries);
@@ -18,7 +18,7 @@ fn main() -> ColoredResult<()> {
 
 fn print_pages(pages: Vec<Page>) {
     for page in pages {
-        if page.missing.is_some() || page.page_id.is_none() {
+        if page.missing.is_some() {
             println!(
                 "{title_msg}\n{help}",
                 title_msg = format!(r#""{}" does not exist."#, page.title).bright_red(),
@@ -31,16 +31,14 @@ fn print_pages(pages: Vec<Page>) {
         //* Page ID: Gray
         //* Content: No color
         println!(
-            "{title}  {page_id}\n",
-            title = format!(" {} ", page.title)
-                .yellow()
-                .on_truecolor(0, 107, 247) // #006BF7
-                .bold(),
+            "[ {title} ]  {page_id}",
+            title = page.title.bold(),
             page_id = format!("(Page ID: {})", page.page_id.unwrap()).truecolor(128, 128, 128)
         );
-        println!("{extract}\n\n", extract = page.extract.unwrap());
+        let extract = page.extract.unwrap_or_default();
+        let extract = extract.split("\n").next().unwrap_or_default();
+        println!("  ~ {extract}\n")
 
-        // TODO: Single paragraph output
         // TODO: Add a `Read more...` at the very end
     }
 }
