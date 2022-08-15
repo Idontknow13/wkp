@@ -10,7 +10,7 @@ use test_case::test_case;
 #[test]
 fn wikiurl_to_url_works() {
     let wikiurl = WikiURL::default()
-        .with_subdomain("a")
+        .with_subdomain(WikiSubdomain::Wikipedia)
         .with_props(QueryParams {
             format: Format::None,
             formatversion: FormatVersion::BackwardsCompatible,
@@ -19,7 +19,7 @@ fn wikiurl_to_url_works() {
         });
 
     assert_eq!(
-        "https://a/w/api.php?action=query&format=none&formatversion=1&prop=revisions",
+        "https://en.wikipedia.org/w/api.php?action=query&format=none&formatversion=1&prop=revisions",
         wikiurl.to_url()
     )
 }

@@ -3,8 +3,13 @@ This module contains the struct and methods which allow request URL building.
 */
 
 pub struct WikiURL {
-    subdomain: String, // TODO: Make this an enum
+    subdomain: WikiSubdomain,
     queries: QueryParams,
+}
+
+pub enum WikiSubdomain {
+    SimpleWikipedia,
+    Wikipedia
 }
 
 pub struct QueryParams {
@@ -41,8 +46,8 @@ impl WikiURL {
         Self::default()
     }
 
-    pub fn with_subdomain(mut self, uri: &'static str) -> Self {
-        self.subdomain = uri.to_string();
+    pub fn with_subdomain(mut self, subdomain: WikiSubdomain) -> Self {
+        self.subdomain = subdomain;
         self
     }
 
@@ -52,14 +57,14 @@ impl WikiURL {
     }
 
     pub fn get_root_uri(&self) -> String {
-        format!("https://{}", self.subdomain)
+        format!("https://{}", self.subdomain.to_string())
     }
 }
 
 impl Default for WikiURL {
     fn default() -> Self {
         Self {
-            subdomain: "simple.wikipedia.com".to_string(),
+            subdomain: WikiSubdomain::SimpleWikipedia,
             queries: QueryParams {
                 format: Format::JSON,
                 formatversion: FormatVersion::Modern,
@@ -77,7 +82,7 @@ impl ToURL for WikiURL {
     fn to_url(&self) -> String {
         format!(
             "https://{domain}/w/api.php?{queries}",
-            domain = self.subdomain,
+            domain = self.subdomain.to_string(),
             queries = self.queries.to_url()
         )
     }
@@ -148,6 +153,15 @@ impl ToURL for Prop {
         };
 
         props.join("&").to_string()
+    }
+}
+
+impl ToString for WikiSubdomain {
+    fn to_string(&self) -> String {
+        match self {
+            WikiSubdomain::SimpleWikipedia => "simple.wikipedia.org",
+            WikiSubdomain::Wikipedia => "en.wikipedia.org",
+        }.to_string()
     }
 }
 
