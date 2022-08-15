@@ -19,7 +19,7 @@ fn wikiurl_to_url_works() {
         });
 
     assert_eq!(
-        "https://a/w/api.php?format=none&formatversion=1&prop=revisions",
+        "https://a/w/api.php?action=query&format=none&formatversion=1&prop=revisions",
         wikiurl.to_url()
     )
 }
@@ -37,7 +37,7 @@ fn query_to_url_works() {
     }.to_url();
 
     assert_eq!(
-        "format=json&formatversion=2&prop=extracts&exintro=1&explaintext=1&redirects=1",
+        "action=query&format=json&formatversion=2&prop=extracts&exintro=1&explaintext=1&redirects=1",
         sample_query
     )
 }
@@ -62,7 +62,6 @@ fn formatver_to_url_works(fmtver: FormatVersion) -> String {
 #[test_case(Prop::Extracts{ intro_only: false, plaintext: true }  => "prop=extracts&explaintext=1"           ; "when plaintext is enabled")]
 #[test_case(Prop::Extracts{ intro_only: true, plaintext: true }   => "prop=extracts&exintro=1&explaintext=1" ; "when extracts is fully enabled")]
 #[test_case(Prop::Revisions => "prop=revisions" ; "when prop is revisions")]
-
 fn props_to_url_works(props: Prop) -> String {
     props.to_url()
 }

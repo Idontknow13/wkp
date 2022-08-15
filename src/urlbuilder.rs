@@ -82,6 +82,7 @@ impl ToURL for WikiURL {
 impl ToURL for QueryParams {
     fn to_url(self) -> String {
         let mut queryparams = vec![
+            "action=query".to_string(),
             self.format.to_url(), // format={}
             self.formatversion.to_url(), // formatversion={}
             self.prop.to_url(), // prop={}&...
