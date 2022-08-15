@@ -36,7 +36,7 @@ pub struct Page {
 
 impl WikiResponse {
     /// Fetches a response from Wikimedia given a specific title.
-    pub fn get(url: &str, titles: Vec<Title>) -> Result<Self, WikiError<'_>> {
+    pub fn get(url: String, titles: Vec<Title>) -> Result<Self, WikiError<'static>> {
         let title_strs = titles.to_str_vec();
         let url = format!("{url}&titles={}", title_strs.join("%7C"));
 

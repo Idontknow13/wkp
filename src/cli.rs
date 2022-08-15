@@ -1,16 +1,14 @@
 use color_eyre::eyre::Result as ColoredResult;
 use colored::Colorize;
-use wikipedia_cli::schema::{Page, WikiResponse};
-
-// TODO: Make this configurable
-const BASE_URL: &str = "https://simple.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&redirects=1&formatversion=2&exintro=1&explaintext=1";
+use wikipedia_cli::{schema::{Page, WikiResponse}, urlbuilder::{WikiURL, ToURL}};
 
 fn main() -> ColoredResult<()> {
     color_eyre::install()?;
 
+    let url = WikiURL::default().to_url();
     let titles = vec!["Sex Pistols"].into_iter().map(|s| s.into()).collect();
 
-    let queries = WikiResponse::get(BASE_URL, titles)?.pages();
+    let queries = WikiResponse::get(url, titles)?.pages();
     print_pages(queries);
 
     Ok(())
