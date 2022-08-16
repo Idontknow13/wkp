@@ -11,6 +11,7 @@ pub struct WikiURL {
 
 #[derive(Debug)]
 pub enum WikiSubdomain {
+    // TODO: Add more available subdomains
     SimpleWikipedia,
     Wikipedia,
     TagalogWikipedia,
