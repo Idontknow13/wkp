@@ -1,11 +1,27 @@
+use clap::Parser;
 use color_eyre::eyre::Result as ColoredResult;
 use colored::Colorize;
 use wikipedia_cli::{
     schema::{Page, WikiResponse},
-    urlbuilder::{ToURL, WikiURL},
+    urlbuilder::{ToURL, WikiURL, WikiSubdomain},
 };
 
-// TODO: Add the CLI
+/// A small CLI application designed to fetch Wikipedia excerpts.
+#[derive(Parser, Debug)]
+#[clap(version, about)]
+struct CLI {
+    /// The pages `wkp` needs to fetch
+    #[clap(short, long)]
+    titles: Vec<String>,
+
+    /// The source wiki to be used by the application. Allowed values are: ["en", "simple", "tag"]
+    #[clap(short, long, default_value = "simple")]
+    subdomain: WikiSubdomain,
+
+    /// Displays the full intro rather than just the first paragraph
+    #[clap(short, long)]
+    whole: bool,
+}
 
 enum PrintOptions {
     FirstParagraphOnly,
@@ -15,11 +31,21 @@ enum PrintOptions {
 fn main() -> ColoredResult<()> {
     color_eyre::install()?;
 
-    let url = WikiURL::default();
-    let titles = vec!["Sex Pistols"].into_iter().map(|s| s.into()).collect();
+    let args = CLI::parse();
+
+    let url = WikiURL::default().with_subdomain(args.subdomain);
+    let titles = args.titles.into_iter().map(|s| s.into()).collect();
 
     let queries = WikiResponse::get(url.to_url(), titles)?.pages();
-    print_pages(queries, url.get_root_uri(), None);
+    print_pages(
+        queries,
+        url.get_root_uri(),
+        if args.whole {
+            Some(PrintOptions::All)
+        } else {
+            None
+        },
+    );
 
     Ok(())
 }
@@ -52,9 +78,9 @@ fn print_pages(pages: Vec<Page>, uri: String, options: Option<PrintOptions>) {
             .expect("the extract should exist if the page exists");
         println!(
             "  ~ {extract}\n",
-            extract = match &options {
-                &PrintOptions::All => extract,
-                &PrintOptions::FirstParagraphOnly => extract
+            extract = match options {
+                PrintOptions::All => extract,
+                PrintOptions::FirstParagraphOnly => extract
                     .split("\n")
                     .next()
                     .expect("first paragraph is guaranteed to exist"),
@@ -64,7 +90,7 @@ fn print_pages(pages: Vec<Page>, uri: String, options: Option<PrintOptions>) {
         let page_url = page.get_wiki_url(&uri);
         println!(
             "{read_more}",
-            read_more = format!("Read more at {page_url}...").truecolor(128, 128, 128)
+            read_more = format!("Read more at {page_url}\n\n").truecolor(128, 128, 128)
         )
     }
 }

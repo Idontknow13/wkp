@@ -2,14 +2,26 @@
 This module contains the struct and methods which allow request URL building.
 */
 
+use crate::to_clap_arg;
+
 pub struct WikiURL {
     subdomain: WikiSubdomain,
     queries: QueryParams,
 }
 
+#[derive(Debug)]
 pub enum WikiSubdomain {
     SimpleWikipedia,
-    Wikipedia
+    Wikipedia,
+    TagalogWikipedia,
+}
+
+to_clap_arg!{
+    type: WikiSubdomain,
+    variants:
+        "simple.wikipedia.org", "simple" => SimpleWikipedia,
+        "en.wikipedia.org", "en" => Wikipedia,
+        "tl.wikipedia.org", "tag" => TagalogWikipedia
 }
 
 pub struct QueryParams {
@@ -92,9 +104,9 @@ impl ToURL for QueryParams {
     fn to_url(&self) -> String {
         let mut queryparams = vec![
             "action=query".to_string(),
-            self.format.to_url(), // format={}
+            self.format.to_url(),        // format={}
             self.formatversion.to_url(), // formatversion={}
-            self.prop.to_url(), // prop={}&...
+            self.prop.to_url(),          // prop={}&...
         ];
 
         if self.redirects {
@@ -153,15 +165,6 @@ impl ToURL for Prop {
         };
 
         props.join("&").to_string()
-    }
-}
-
-impl ToString for WikiSubdomain {
-    fn to_string(&self) -> String {
-        match self {
-            WikiSubdomain::SimpleWikipedia => "simple.wikipedia.org",
-            WikiSubdomain::Wikipedia => "en.wikipedia.org",
-        }.to_string()
     }
 }
 

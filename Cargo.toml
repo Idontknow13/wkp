@@ -21,6 +21,7 @@ lto = true
 panic = "abort"
 
 [dependencies]
+clap = { version = "3.2.17", features = ["derive"] }
 color-eyre = { version = "0.6.2", default-features = false }
 colored = "2.0.0"
 reqwest = { version = "0.11.11", features = ["blocking", "json"] }

@@ -66,7 +66,13 @@ trait ToStrVec {
 
 impl From<&str> for Title {
     fn from(s: &str) -> Self {
-        Title::new(s).normalize()
+        Self::new(s).normalize()
+    }
+}
+
+impl From<String> for Title {
+    fn from(s: String) -> Self {
+        Self::new(s).normalize()
     }
 }
 
@@ -78,7 +84,7 @@ impl From<Title> for String {
 
 impl Title {
     /// Creates a new, non-Default instance of `Title`.
-    fn new(title: &str) -> Self {
+    fn new<S: ToString>(title: S) -> Self {
         Self {
             normalized: false,
             title: title.to_string(),
@@ -89,7 +95,7 @@ impl Title {
     fn normalize(&self) -> Self {
         Self {
             normalized: true,
-            title: self.title.replace(' ', "_"),
+            title: normalize(&self.title)
         }
     }
 }
@@ -112,6 +118,10 @@ impl ToStrVec for Vec<Title> {
 
 impl Page {
     pub fn get_wiki_url(&self, root_uri: &str) -> String {
-        format!("{root_uri}/wiki/{}", self.title)
+        format!("{root_uri}/wiki/{}", normalize(&self.title))
     }
+}
+
+fn normalize(s: &str) -> String {
+    s.replace(' ', "_")
 }
