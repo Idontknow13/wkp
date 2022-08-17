@@ -13,11 +13,11 @@ pub struct WikiError<'a> {
 
 fn verify_cause(err: &HTTPError) -> &'static str {
     match err {
-        e if e.is_decode() => "title",                      // invalid page
-        e if e.is_connect() => "connection",                // connection issue
-        e if e.is_redirect() => "redirect",                 // redirect problems
-        e if e.is_request() || e.is_timeout() => "request", // misc request issues
-        e if e.is_body() || e.is_status() => "response",    // misc response issues
+        e if e.is_connect() => "connection",                // 0: connection issue
+        e if e.is_decode() => "title",                      // 1: invalid page
+        e if e.is_redirect() => "redirect",                 // 2: page redirect issue
+        e if e.is_request() || e.is_timeout() => "request", // 3: misc request issues
+        e if e.is_body() || e.is_status() => "response",    // 4: misc response issues
         // ------------ Unhandled Error Types ------------- //
         e if e.is_builder() => unimplemented!("not handled externally"),
         _ => unreachable!("all error kinds in `reqwest` is handled"),
