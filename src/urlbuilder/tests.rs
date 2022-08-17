@@ -34,7 +34,8 @@ fn query_to_url_works() {
             intro_only: true,
             plaintext: true,
         },
-    }.to_url();
+    }
+    .to_url();
 
     assert_eq!(
         "action=query&format=json&formatversion=2&prop=extracts&exintro=1&explaintext=1&redirects=1",

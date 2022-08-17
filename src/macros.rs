@@ -5,29 +5,29 @@ traits for converting a type into a clap argument.
 
 #[macro_export]
 /// Converts a specified type into a valid clap argument (has `ToString` + `FromStr`)
-/// 
+///
 /// ## Exmaple
-/// 
+///
 /// ```
 /// use wikipedia_cli::to_clap_arg;
 /// use std::str::FromStr;
-/// 
+///
 /// #[derive(Debug, PartialEq)] // `PartialEq` needed for testing
 /// enum Foo {
 ///     Bar,
 ///     Baz
 /// }
-/// 
+///
 /// to_clap_arg! {
 ///     type: Foo,
 ///     variants:
 ///         "bar", "b" => Bar,
 ///         "baz", "bz" => Baz
 /// }
-/// 
+///
 /// # fn main() {
 /// let b = Foo::Bar;
-/// 
+///
 /// assert_eq!(String::from("bar"), b.to_string());
 /// assert_eq!(Ok(Foo::Baz), Foo::from_str("bz"));
 /// # }
@@ -58,4 +58,3 @@ macro_rules! to_clap_arg {
         }
     };
 }
-

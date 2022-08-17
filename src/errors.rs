@@ -25,7 +25,11 @@ fn verify_cause(err: &HTTPError) -> &'static str {
 impl<'a> WikiError<'a> {
     /// Creates a new `WikiError instance.`
     pub fn new(err: HTTPError, cause: &'a str, args: Vec<String>) -> Self {
-        WikiError { err, cause: Some(cause), args: Some(args) }
+        WikiError {
+            err,
+            cause: Some(cause),
+            args: Some(args),
+        }
     }
 }
 

@@ -3,13 +3,13 @@ use color_eyre::eyre::Result as ColoredResult;
 use colored::Colorize;
 use wikipedia_cli::{
     schema::{Page, WikiResponse},
-    urlbuilder::{ToURL, WikiURL, WikiSubdomain},
+    urlbuilder::{ToURL, WikiSubdomain, WikiURL},
 };
 
 /// A small CLI application designed to fetch Wikipedia excerpts.
 #[derive(Parser, Debug)]
 #[clap(version, about)]
-struct CLI {
+struct Cli {
     /// The pages `wkp` needs to fetch
     #[clap(short, long)]
     titles: Vec<String>,
@@ -31,7 +31,7 @@ enum PrintOptions {
 fn main() -> ColoredResult<()> {
     color_eyre::install()?;
 
-    let args = CLI::parse();
+    let args = Cli::parse();
 
     let url = WikiURL::default().with_subdomain(args.subdomain);
     let titles = args.titles.into_iter().map(|s| s.into()).collect();
@@ -69,7 +69,12 @@ fn print_pages(pages: Vec<Page>, uri: String, options: Option<PrintOptions>) {
         println!(
             "[ {title} ]  {page_id}",
             title = page.title.bold(),
-            page_id = format!("(Page ID: {})", page.page_id.unwrap()).truecolor(128, 128, 128)
+            page_id = format!(
+                "(Page ID: {})",
+                page.page_id
+                    .expect("page_id should exist if page is not missing")
+            )
+            .truecolor(128, 128, 128)
         );
 
         let extract = page
@@ -81,7 +86,7 @@ fn print_pages(pages: Vec<Page>, uri: String, options: Option<PrintOptions>) {
             extract = match options {
                 PrintOptions::All => extract,
                 PrintOptions::FirstParagraphOnly => extract
-                    .split("\n")
+                    .split('\n')
                     .next()
                     .expect("first paragraph is guaranteed to exist"),
             }

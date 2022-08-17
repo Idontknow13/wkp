@@ -17,7 +17,7 @@ pub enum WikiSubdomain {
     TagalogWikipedia,
 }
 
-to_clap_arg!{
+to_clap_arg! {
     type: WikiSubdomain,
     variants:
         "simple.wikipedia.org", "simple" => SimpleWikipedia,
@@ -165,7 +165,7 @@ impl ToURL for Prop {
             Self::Revisions => vec!["prop=revisions"],
         };
 
-        props.join("&").to_string()
+        props.join("&")
     }
 }
 

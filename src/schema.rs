@@ -12,7 +12,7 @@ sent by the Wikimedia API using these options:
 */
 
 use crate::errors::WikiError;
-use reqwest::blocking::get;
+use reqwest::blocking::get; // TODO: Change this to async with either std::thread or tokio
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -40,10 +40,7 @@ impl WikiResponse {
         let title_strs = titles.to_str_vec();
         let url = format!("{url}&titles={}", title_strs.join("%7C"));
 
-        match get(url)?.json::<WikiResponse>() {
-            Ok(resp) => Ok(resp),
-            Err(err) => Err(WikiError::new(err, "title", title_strs)),
-        }
+        Ok(get(url)?.json::<WikiResponse>()?)
     }
 
     /// Grabs the pages as obtained by `WikiResponse`.
@@ -52,7 +49,7 @@ impl WikiResponse {
     }
 }
 
-/// A string wrapper which allows normalization for requests made with the WikiMedia API. 
+/// A string wrapper which allows normalization for requests made with the WikiMedia API.
 #[derive(Clone)]
 pub struct Title {
     normalized: bool,
@@ -95,7 +92,7 @@ impl Title {
     fn normalize(&self) -> Self {
         Self {
             normalized: true,
-            title: normalize(&self.title)
+            title: normalize(&self.title),
         }
     }
 }
