@@ -4,7 +4,7 @@ A CLI tool designed to fetch Wikipedia excerpts written in Rust.
 
 ![Demo GIF](/assets/demo.gif)
 
-## Usage:
+## Usage
 
 - Open Help
 
