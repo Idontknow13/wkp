@@ -12,12 +12,14 @@ pub struct WikiError<'a> {
 }
 
 fn verify_cause(err: &HTTPError) -> &'static str {
-    match &err {
-        e if e.is_decode() => "title",
-        e if e.is_redirect() => "redirect",
-        e if e.is_request() || e.is_timeout() => "request",
-        e if e.is_body() || e.is_status() => "response",
-        e if e.is_builder() || e.is_connect() => unimplemented!("not handled externally"),
+    match err {
+        e if e.is_decode() => "title",                      // invalid page
+        e if e.is_connect() => "connection",                // connection issue
+        e if e.is_redirect() => "redirect",                 // redirect problems
+        e if e.is_request() || e.is_timeout() => "request", // misc request issues
+        e if e.is_body() || e.is_status() => "response",    // misc response issues
+        // ------------ Unhandled Error Types ------------- //
+        e if e.is_builder() => unimplemented!("not handled externally"),
         _ => unreachable!("all error kinds in `reqwest` is handled"),
     }
 }
@@ -36,7 +38,7 @@ impl<'a> WikiError<'a> {
 impl From<HTTPError> for WikiError<'_> {
     fn from(err: HTTPError) -> Self {
         Self {
-            cause: Some(verify_cause(&err)), // allows borrow before move
+            cause: Some(verify_cause(&err)), // allows borrow
             err,
             args: Some(vec![]),
         }
